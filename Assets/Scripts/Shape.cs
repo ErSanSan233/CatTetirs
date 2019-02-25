@@ -4,16 +4,13 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class Shape : MonoBehaviour
-{
+public class Shape : MonoBehaviour {
     public float speed = 1.0f;
     float lastMoveDown = 0;
 
     // Start is called before the first frame update
-    void Start()
-    {
-        if (!IsInGrid())
-        {
+    void Start() {
+        if (!IsInGrid()) {
             //Sound Here
             //SoundManager.Instance.PlayOneShot(SoundManager.Instance.gameOver);
             Invoke("OpenGameOverScene", .2f);
@@ -21,74 +18,57 @@ public class Shape : MonoBehaviour
 
     }
 
-    void OpenGameOverScene()
-    {
-        Destroy(gameObject);    
-        SceneManager.LoadScene ("GameOver");
+    void OpenGameOverScene() {
+        Destroy(gameObject);
+        SceneManager.LoadScene("GameOver");
 
     }
-            
+
 
 
     // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKey("a"))
-        {
+    void Update() {
+        if (Input.GetKey("a")) {
             transform.position += new Vector3(-1, 0, 0);
             Debug.Log(transform.position);
-            if (!IsInGrid())
-            {
+            if (!IsInGrid()) {
                 transform.position += new Vector3(1, 0, 0);
-            }
-            else
-            {
+            } else {
                 UpadateGameBoard();
             }
         }
 
-        if (Input.GetKey("w"))
-        {
+        if (Input.GetKey("w")) {
             transform.Rotate(0, 0, 90);
             SoundManager.Instance.PlayOneShot(SoundManager.Instance.rotateSound);
-            if (!IsInGrid())
-            {
+            if (!IsInGrid()) {
                 transform.Rotate(0, 0, -90);
-            }
-            else
-            {
+            } else {
                 UpadateGameBoard();
             }
 
         }
 
-        if (Input.GetKey("e"))
-        {
+        if (Input.GetKey("e")) {
             transform.Rotate(0, 0, -90);
             SoundManager.Instance.PlayOneShot(SoundManager.Instance.rotateSound);
-            if (!IsInGrid())
-            {
+            if (!IsInGrid()) {
                 transform.Rotate(0, 0, 90);
 
-            }
-            else
-            {
+            } else {
                 UpadateGameBoard();
             }
 
         }
 
-        if (Input.GetKey("s") || Time.time - lastMoveDown >= 1)
-        {
+        if (Input.GetKey("s") || Time.time - lastMoveDown >= 1) {
             transform.position += new Vector3(0, -1, 0);
-        
-            if (!IsInGrid())
-            {
+
+            if (!IsInGrid()) {
                 transform.position += new Vector3(0, 1, 0);
 
                 bool rowDeleted = GameBoard.DeleteAllFullRows();
-                if (rowDeleted)
-                {
+                if (rowDeleted) {
 
                     GameBoard.DeleteAllFullRows();
                     IncreaseTextUIScore();
@@ -97,9 +77,7 @@ public class Shape : MonoBehaviour
                 enabled = false;
 
                 FindObjectOfType<ShapeSpawner>().SpawnShape();
-            }
-            else
-            {
+            } else {
                 UpadateGameBoard();
             }
 
@@ -107,40 +85,31 @@ public class Shape : MonoBehaviour
         }
 
 
-        if (Input.GetKey("d"))
-        {
+        if (Input.GetKey("d")) {
             transform.position += new Vector3(1, 0, 0);
             Debug.Log(transform.position);
-            if (!IsInGrid())
-            {
+            if (!IsInGrid()) {
                 transform.position += new Vector3(-1, 0, 0);
-            }
-            else
-            {
+            } else {
                 UpadateGameBoard();
             }
         }
 
     }
 
-    public Vector2 RoundVector(Vector2 vect)
-    {
+    public Vector2 RoundVector(Vector2 vect) {
         return new Vector2(Mathf.Round(vect.x), Mathf.Round(vect.y));
     }
 
-    public bool IsInGrid()
-    {
-        foreach(Transform childBlock in transform)
-        {
+    public bool IsInGrid() {
+        foreach (Transform childBlock in transform) {
             Vector2 vect = RoundVector(childBlock.position);
 
-            if (!IsInBorder(vect))
-            {
+            if (!IsInBorder(vect)) {
                 return false;
             }
-            if (GameBoard.gameBoard[(int) vect.x, (int)vect.y ] != null &&
-            GameBoard.gameBoard[(int)vect.x, (int)vect.y].parent != transform)
-            {
+            if (GameBoard.gameBoard[(int)vect.x, (int)vect.y] != null &&
+            GameBoard.gameBoard[(int)vect.x, (int)vect.y].parent != transform) {
                 return false;
             }
 
@@ -149,41 +118,34 @@ public class Shape : MonoBehaviour
     }
 
 
-    public static bool IsInBorder(Vector2 pos)
-    {
+    public static bool IsInBorder(Vector2 pos) {
         return ((int)pos.x >= 0 &&
                 (int)pos.x <= 10 &&
                 (int)pos.y >= 0);
     }
 
 
-    public void UpadateGameBoard()
-    {
-        for(int y = 0; y <20; ++y)
-        {
+    public void UpadateGameBoard() {
+        for (int y = 0; y < 20; ++y) {
 
-            for( int x = 0; x<11; ++x)
-            {
-                if (GameBoard.gameBoard[x,y]!=null &&
-                GameBoard.gameBoard[x, y].parent == transform)
-                {
+            for (int x = 0; x < 11; ++x) {
+                if (GameBoard.gameBoard[x, y] != null &&
+                GameBoard.gameBoard[x, y].parent == transform) {
                     GameBoard.gameBoard[x, y] = null;
                 }
             }
         }
 
-        foreach(Transform childBlock in transform)
-        {
+        foreach (Transform childBlock in transform) {
             Vector2 vect = RoundVector(childBlock.position);
-                GameBoard.gameBoard[(int)vect.x, (int)vect.y] = childBlock;
-                Debug.Log("Cube At : " + vect.x + " " + vect.y);
+            GameBoard.gameBoard[(int)vect.x, (int)vect.y] = childBlock;
+            Debug.Log("Cube At : " + vect.x + " " + vect.y);
         }
 
     }
 
     // Increases the score the text UI 
-    void IncreaseTextUIScore()
-    {
+    void IncreaseTextUIScore() {
         // Find the matching text UI component
         var textUIComp = GameObject.Find("Score").GetComponent<Text>();
 
